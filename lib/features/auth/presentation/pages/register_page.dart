@@ -18,12 +18,6 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    FocusScope.of(context).unfocus();
-    // TODO: Connect registration when authentication is implemented.
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
@@ -109,5 +103,11 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    // TODO: Connect registration when authentication is implemented.
   }
 }
