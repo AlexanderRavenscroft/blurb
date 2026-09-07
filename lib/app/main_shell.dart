@@ -1,79 +1,98 @@
+import 'package:blurb/app/app_routing.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:remixicon/remixicon.dart';
 
-class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+class MainShell extends StatelessWidget {
+  final StatefulNavigationShell navigationShell;
+
+  const MainShell({super.key, required this.navigationShell});
 
   @override
-  State<MainShell> createState() => _MainShellState();
-}
+  Widget build(BuildContext context) {
+    final selectedIndex = _bottomBarIndex(navigationShell.currentIndex);
 
-class _MainShellState extends State<MainShell> {
-  final _contents = [
-    const Center(child: Text('Home Placeholder')),
-    const Center(child: Text('Search Placeholder')),
-    const Center(child: Text('Add Placeholder')),
-    const Center(child: Text('Notifications Placeholder')),
-    const Center(child: Text('Profile Placeholder')),
-  ];
-
-  int _index = 0;
-
-  @override
-  Widget build(BuildContext context) => FScaffold(
-    footer: SafeArea(
-      top: false,
-      // Consume the inset before Forui adds its own bottom padding.
-      child: FBottomNavigationBar(
-        safeAreaBottom: false,
-        index: _index,
-        onChange: (index) => setState(() => _index = index),
-        children: [
-          FBottomNavigationBarItem(
-            semanticsLabel: 'Home',
-            icon: Icon(
-              _index == 0 ? RemixIcons.home_fill : RemixIcons.home_line,
-              color: context.theme.colors.secondaryForeground,
-            ),
-          ),
-          FBottomNavigationBarItem(
-            semanticsLabel: 'Search',
-            icon: Icon(
-              _index == 1 ? RemixIcons.search_fill : RemixIcons.search_line,
-              color: context.theme.colors.secondaryForeground,
-            ),
-          ),
-          FBottomNavigationBarItem(
-            semanticsLabel: 'Add',
-            icon: SizedBox(
-              width: 56,
-              child: FButton.icon(
-                variant: .primary,
-                onPress: () => setState(() => _index = 2),
-                child: Icon(RemixIcons.add_large_fill),
+    return FScaffold(
+      footer: SafeArea(
+        top: false,
+        // Consume the inset before Forui adds its own bottom padding.
+        child: FBottomNavigationBar(
+          safeAreaBottom: false,
+          index: selectedIndex,
+          onChange: _selectDestination,
+          children: [
+            FBottomNavigationBarItem(
+              semanticsLabel: 'Home',
+              icon: Icon(
+                selectedIndex == 0
+                    ? RemixIcons.home_fill
+                    : RemixIcons.home_line,
+                color: context.theme.colors.secondaryForeground,
               ),
             ),
-          ),
-          FBottomNavigationBarItem(
-            semanticsLabel: 'Notifications',
-            icon: Icon(
-              _index == 3
-                  ? RemixIcons.notification_3_fill
-                  : RemixIcons.notification_3_line,
-              color: context.theme.colors.secondaryForeground,
+            FBottomNavigationBarItem(
+              semanticsLabel: 'Search',
+              icon: Icon(
+                selectedIndex == 1
+                    ? RemixIcons.search_fill
+                    : RemixIcons.search_line,
+                color: context.theme.colors.secondaryForeground,
+              ),
             ),
-          ),
-          FBottomNavigationBarItem(
-            semanticsLabel: 'Profile',
-            icon: Icon(
-              _index == 4 ? RemixIcons.user_3_fill : RemixIcons.user_3_line,
-              color: context.theme.colors.secondaryForeground,
+            FBottomNavigationBarItem(
+              semanticsLabel: 'Add',
+              icon: SizedBox(
+                width: 56,
+                child: FButton.icon(
+                  variant: .primary,
+                  onPress: () => _onCreatePostPressed(context),
+                  child: Icon(RemixIcons.add_large_fill),
+                ),
+              ),
             ),
-          ),
-        ],
+            FBottomNavigationBarItem(
+              semanticsLabel: 'Notifications',
+              icon: Icon(
+                selectedIndex == 3
+                    ? RemixIcons.notification_3_fill
+                    : RemixIcons.notification_3_line,
+                color: context.theme.colors.secondaryForeground,
+              ),
+            ),
+            FBottomNavigationBarItem(
+              semanticsLabel: 'Profile',
+              icon: Icon(
+                selectedIndex == 4
+                    ? RemixIcons.user_3_fill
+                    : RemixIcons.user_3_line,
+                color: context.theme.colors.secondaryForeground,
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-    child: _contents[_index],
-  );
+      child: navigationShell,
+    );
+  }
+
+  int _bottomBarIndex(int branchIndex) {
+    return branchIndex < 2 ? branchIndex : branchIndex + 1;
+  }
+
+  void _selectDestination(int index) {
+    if (index == 2) {
+      return;
+    }
+
+    final branchIndex = index < 2 ? index : index - 1;
+    navigationShell.goBranch(
+      branchIndex,
+      initialLocation: branchIndex == navigationShell.currentIndex,
+    );
+  }
+
+  void _onCreatePostPressed(BuildContext context) {
+    context.pushNamed(AppRoute.createPost.name);
+  }
 }
