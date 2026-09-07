@@ -1,4 +1,6 @@
 import 'package:blurb/app/main_shell.dart';
+import 'package:blurb/features/auth/presentation/pages/login_page.dart';
+import 'package:blurb/features/auth/presentation/pages/register_page.dart';
 import 'package:blurb/pages/create_post_page.dart';
 import 'package:blurb/pages/home_page.dart';
 import 'package:blurb/pages/notifications_page.dart';
@@ -6,11 +8,29 @@ import 'package:blurb/pages/profile_page.dart';
 import 'package:blurb/pages/search_page.dart';
 import 'package:go_router/go_router.dart';
 
-enum AppRoute { home, search, createPost, notifications, profile }
+enum AppRoute {
+  home,
+  search,
+  createPost,
+  notifications,
+  profile,
+  login,
+  register,
+}
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/login',
   routes: [
+    GoRoute(
+      path: '/login',
+      name: AppRoute.login.name,
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/register',
+      name: AppRoute.register.name,
+      builder: (context, state) => const RegisterPage(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (_, _, navigationShell) {
         return MainShell(navigationShell: navigationShell);

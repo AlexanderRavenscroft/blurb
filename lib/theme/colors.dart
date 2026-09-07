@@ -86,4 +86,3 @@ class AppColors extends ThemeExtension<AppColors> {
   @override
   int get hashCode => runtimeType.hashCode;
 }
-
