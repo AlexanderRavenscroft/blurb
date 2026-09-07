@@ -1,26 +1,49 @@
 import 'package:blurb/app/app_routing.dart';
 import 'package:blurb/features/auth/presentation/components/auth_social_sign_in.dart';
 import 'package:blurb/features/auth/presentation/components/auth_switch_prompt.dart';
+import 'package:blurb/features/auth/presentation/cubits/auth/auth_cubit.dart';
+import 'package:blurb/features/auth/presentation/cubits/register/register_cubit.dart';
 import 'package:blurb/features/auth/presentation/validation/auth_validators.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-class RegisterPage extends StatefulWidget {
+//TODO: Show register errors via Snackbars
+class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  Widget build(BuildContext context) => BlocProvider(
+    create: (_) => RegisterCubit(),
+    child: BlocListener<RegisterCubit, RegisterState>(
+      listener: (context, state) {
+        if (state is RegisterSuccess) {
+          context.read<AuthCubit>().authenticate();
+        }
+      },
+      child: const RegisterView(),
+    ),
+  );
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final state = context.watch<RegisterCubit>().state;
+
     return FScaffold(
       child: SafeArea(
         child: Center(
@@ -81,9 +104,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const Gap(AppSpacing.xxl),
                         FButton(
-                          onPress: _submit,
+                          onPress: state is RegisterSubmitting ? null : _submit,
                           size: .lg,
-                          child: const Text('Create account'),
+                          child: Text(
+                            state is RegisterSubmitting
+                                ? 'Please wait...'
+                                : 'Create account',
+                          ),
                         ),
                       ],
                     ),
@@ -108,6 +135,6 @@ class _RegisterPageState extends State<RegisterPage> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    // TODO: Connect registration when authentication is implemented.
+    context.read<RegisterCubit>().register();
   }
 }
