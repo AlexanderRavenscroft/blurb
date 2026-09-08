@@ -110,6 +110,22 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  @override
+  Future<void> signInWithDiscord() async {
+    try {
+      await supabaseInstance.auth.signInWithOAuth(
+        supabase.OAuthProvider.discord,
+        redirectTo: AppConfig.authRedirectUrl,
+        authScreenLaunchMode: supabase.LaunchMode.externalApplication,
+      );
+    } on supabase.AuthException catch (exception, stackTrace) {
+      Error.throwWithStackTrace(
+        _mapException(exception, stackTrace),
+        stackTrace,
+      );
+    }
+  }
+
   AuthException _mapException(
     supabase.AuthException exception,
     StackTrace stackTrace,

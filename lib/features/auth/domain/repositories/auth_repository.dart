@@ -15,5 +15,7 @@ abstract interface class AuthRepository {
 
   Future<void> signInWithFacebook();
 
+  Future<void> signInWithDiscord();
+
   Future<void> signOut();
 }

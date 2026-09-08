@@ -69,10 +69,12 @@ class AuthSocialSignIn extends StatelessWidget {
                   child: const Icon(RemixIcons.google_fill),
                 ),
               ),
-              const _SocialSignInButton(
-                provider: 'Apple',
-                onPressed: null,
-                icon: Icon(RemixIcons.apple_fill),
+              _SocialSignInButton(
+                provider: 'Discord',
+                icon: Icon(RemixIcons.discord_fill),
+                onPressed: isSubmitting
+                    ? null
+                    : () => context.read<SocialAuthCubit>().signInWithDiscord(),
               ),
               _SocialSignInButton(
                 provider: 'Facebook',
