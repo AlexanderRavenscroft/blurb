@@ -14,5 +14,7 @@ final class AuthUnauthenticated extends AuthState {
 }
 
 final class AuthAuthenticated extends AuthState {
-  const AuthAuthenticated();
+  final AuthUser user;
+
+  const AuthAuthenticated({required this.user});
 }

@@ -13,10 +13,6 @@ final class LoginSubmitting extends LoginState {
   const LoginSubmitting();
 }
 
-final class LoginSuccess extends LoginState {
-  const LoginSuccess();
-}
-
 final class LoginFailure extends LoginState {
   final AuthExceptionCode code;
 

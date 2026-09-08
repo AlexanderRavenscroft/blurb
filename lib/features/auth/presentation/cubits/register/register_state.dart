@@ -13,10 +13,6 @@ final class RegisterSubmitting extends RegisterState {
   const RegisterSubmitting();
 }
 
-final class RegisterSuccess extends RegisterState {
-  const RegisterSuccess();
-}
-
 final class RegisterFailure extends RegisterState {
   final AuthExceptionCode code;
 

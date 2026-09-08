@@ -1,8 +1,9 @@
 import 'package:blurb/app/app_routing.dart';
+import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
 import 'package:blurb/features/auth/presentation/components/auth_social_sign_in.dart';
 import 'package:blurb/features/auth/presentation/components/auth_switch_prompt.dart';
-import 'package:blurb/features/auth/presentation/cubits/auth/auth_cubit.dart';
 import 'package:blurb/features/auth/presentation/cubits/register/register_cubit.dart';
+import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
 import 'package:blurb/features/auth/presentation/validation/auth_validators.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
@@ -11,21 +12,14 @@ import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-//TODO: Show register errors via Snackbars
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-    create: (_) => RegisterCubit(),
-    child: BlocListener<RegisterCubit, RegisterState>(
-      listener: (context, state) {
-        if (state is RegisterSuccess) {
-          context.read<AuthCubit>().authenticate();
-        }
-      },
-      child: const RegisterView(),
-    ),
+    create: (_) =>
+        RegisterCubit(authRepository: context.read<AuthRepository>()),
+    child: const RegisterView(),
   );
 }
 
@@ -38,93 +32,126 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _usernameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
     final state = context.watch<RegisterCubit>().state;
 
-    return FScaffold(
-      child: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: .stretch,
-              children: [
-                Text(
-                  'Create Account',
-                  style: theme.typography.display.xl3.copyWith(
-                    fontWeight: FontWeight.w600,
-                    height: 1.6,
+    return BlocListener<RegisterCubit, RegisterState>(
+      listener: (context, state) {
+        if (state is RegisterFailure) {
+          showFToast(
+            context: context,
+            title: Text(AuthFailureMessageMapper.forRegister(state.code)),
+            variant: FToastVariant.destructive,
+            duration: const Duration(seconds: 3),
+          );
+        }
+      },
+      child: FScaffold(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: .stretch,
+                children: [
+                  Text(
+                    'Create Account',
+                    style: theme.typography.display.xl3.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 1.6,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  'Join the conversation on blurb.',
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.mutedForeground,
+                  Text(
+                    'Join the conversation on blurb.',
+                    style: theme.typography.body.sm.copyWith(
+                      color: theme.colors.mutedForeground,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const Gap(AppSpacing.xxl),
-                AutofillGroup(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        FTextFormField(
-                          label: const Text('Username'),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          hint: 'Your username',
-                          textInputAction: TextInputAction.next,
-                          autocorrect: false,
-                          enableSuggestions: false,
-                          validator: AuthValidators.username,
-                          autofillHints: const [AutofillHints.newUsername],
-                        ),
-                        const Gap(AppSpacing.xl),
-                        FTextFormField.email(
-                          label: const Text('Email'),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          hint: 'you@example.com',
-                          textInputAction: TextInputAction.next,
-                          validator: AuthValidators.registrationEmail,
-                        ),
-                        const Gap(AppSpacing.xl),
-                        FTextFormField.password(
-                          label: const Text('Password'),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          hint:
-                              'At least ${AuthValidators.minimumPasswordLength} characters',
-                          validator: AuthValidators.registrationPassword,
-                          textInputAction: TextInputAction.done,
-                          autofillHints: const [AutofillHints.newPassword],
-                          onSubmit: (_) => _submit(),
-                        ),
-                        const Gap(AppSpacing.xxl),
-                        FButton(
-                          onPress: state is RegisterSubmitting ? null : _submit,
-                          size: .lg,
-                          child: Text(
-                            state is RegisterSubmitting
-                                ? 'Please wait...'
-                                : 'Create account',
+                  const Gap(AppSpacing.xxl),
+                  AutofillGroup(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          FTextFormField(
+                            control: .managed(controller: _usernameController),
+                            label: const Text('Username'),
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            hint: 'Your username',
+                            textInputAction: TextInputAction.next,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            validator: AuthValidators.username,
+                            autofillHints: const [AutofillHints.newUsername],
                           ),
-                        ),
-                      ],
+                          const Gap(AppSpacing.xl),
+                          FTextFormField.email(
+                            control: .managed(controller: _emailController),
+                            label: const Text('Email'),
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            hint: 'you@example.com',
+                            textInputAction: TextInputAction.next,
+                            validator: AuthValidators.registrationEmail,
+                          ),
+                          const Gap(AppSpacing.xl),
+                          FTextFormField.password(
+                            control: .managed(controller: _passwordController),
+                            label: const Text('Password'),
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            hint:
+                                'At least ${AuthValidators.minimumPasswordLength} characters',
+                            validator: AuthValidators.registrationPassword,
+                            textInputAction: TextInputAction.done,
+                            autofillHints: const [AutofillHints.newPassword],
+                            onSubmit: (_) => _submit(),
+                          ),
+                          const Gap(AppSpacing.xxl),
+                          FButton(
+                            onPress: state is RegisterSubmitting
+                                ? null
+                                : _submit,
+                            size: .lg,
+                            child: Text(
+                              state is RegisterSubmitting
+                                  ? 'Please wait...'
+                                  : 'Create account',
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const Gap(AppSpacing.xxl),
-                const AuthSocialSignIn(),
-                const Gap(AppSpacing.xxl),
-                AuthSwitchPrompt(
-                  text: 'Already have an account?',
-                  buttonText: 'Sign in here',
-                  onPressed: () => context.goNamed(AppRoute.login.name),
-                ),
-              ],
+                  const Gap(AppSpacing.xxl),
+                  const AuthSocialSignIn(),
+                  const Gap(AppSpacing.xxl),
+                  AuthSwitchPrompt(
+                    text: 'Already have an account?',
+                    buttonText: 'Sign in here',
+                    onPressed: state is RegisterSubmitting
+                        ? null
+                        : () => context.goNamed(AppRoute.login.name),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -135,6 +162,10 @@ class _RegisterViewState extends State<RegisterView> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    context.read<RegisterCubit>().register();
+    context.read<RegisterCubit>().register(
+      username: _usernameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
   }
 }
