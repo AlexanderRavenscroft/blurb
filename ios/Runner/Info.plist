@@ -67,7 +67,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- Google Sign-in Section -->
+	<!-- Supabase handles auth links through app_links, not GoRouter. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<false />
+	<!-- Google Sign-In and Supabase OAuth callbacks. -->
 	<key>CFBundleURLTypes</key>
 	<array>
   <dict>
@@ -79,7 +82,14 @@
                     >com.googleusercontent.apps.809459911016-gq6lheeel9ugesqrkj4g6qp5017ooqv3</string>
     </array>
   </dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.example.blurb</string>
+			</array>
+		</dict>
 	</array>
-	<!-- End of the Google Sign-in Section -->
 </dict>
 </plist>

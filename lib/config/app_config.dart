@@ -1,4 +1,6 @@
 abstract final class AppConfig {
+  static const authRedirectUrl = 'com.example.blurb://login-callback/';
+
   static const supabaseUrl = 'https://faysmljuicarhlpmudwi.supabase.co';
   static const supabasePublishableKey =
       'sb_publishable__j4UEyEKoPWjyxXcHplFfA_Njui_bcd';

@@ -30,4 +30,28 @@ class SocialAuthCubit extends Cubit<SocialAuthState> {
       emit(const SocialAuthFailure(AuthExceptionCode.unknown));
     }
   }
+
+  Future<void> signInWithFacebook() async {
+    if (state is SocialAuthSubmitting) return;
+
+    emit(const SocialAuthSubmitting());
+
+    try {
+      await _authRepository.signInWithFacebook();
+			// OAuth completes later through watchUser(), after the browser returns.
+			// Release the button so closing the browser also allows another attempt.
+			if (!isClosed) emit(const SocialAuthInitial());
+    } on AuthException catch (exception) {
+			if (!isClosed) emit(SocialAuthFailure(exception.code));
+    } catch (error, stackTrace) {
+      log.e(
+        'Unexpected Facebook sign-in failure',
+        error: error,
+        stackTrace: stackTrace,
+      );
+			if (!isClosed) {
+				emit(const SocialAuthFailure(AuthExceptionCode.unknown));
+			}
+    }
+  }
 }

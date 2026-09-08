@@ -74,13 +74,16 @@ class AuthSocialSignIn extends StatelessWidget {
                 onPressed: null,
                 icon: Icon(RemixIcons.apple_fill),
               ),
-              const _SocialSignInButton(
+              _SocialSignInButton(
                 provider: 'Facebook',
-                onPressed: null,
                 icon: Icon(
                   RemixIcons.facebook_circle_fill,
                   color: Color(0xFF1877F2),
                 ),
+                onPressed: isSubmitting
+                    ? null
+                    : () =>
+                          context.read<SocialAuthCubit>().signInWithFacebook(),
               ),
             ],
           ),
