@@ -3,6 +3,7 @@ import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
 import 'package:blurb/features/auth/presentation/components/auth_social_sign_in.dart';
 import 'package:blurb/features/auth/presentation/components/auth_switch_prompt.dart';
 import 'package:blurb/features/auth/presentation/cubits/login/login_cubit.dart';
+import 'package:blurb/features/auth/presentation/cubits/social_auth/social_auth_cubit.dart';
 import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
 import 'package:blurb/features/auth/presentation/validation/auth_validators.dart';
 import 'package:blurb/theme/app_spacing.dart';
@@ -16,8 +17,17 @@ class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-    create: (_) => LoginCubit(authRepository: context.read<AuthRepository>()),
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) =>
+            LoginCubit(authRepository: context.read<AuthRepository>()),
+      ),
+      BlocProvider(
+        create: (_) =>
+            SocialAuthCubit(authRepository: context.read<AuthRepository>()),
+      ),
+    ],
     child: const LoginView(),
   );
 }
@@ -103,20 +113,7 @@ class _LoginViewState extends State<LoginView> {
                             textInputAction: TextInputAction.done,
                             onSubmit: (_) => _submit(),
                           ),
-                          const Gap(AppSpacing.xs),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: FButton(
-                              mainAxisSize: MainAxisSize.min,
-                              variant: FButtonVariant.ghost,
-                              onPress: () {},
-                              child: Text(
-                                'Forgot password?',
-                                style: theme.typography.body.xs,
-                              ),
-                            ),
-                          ),
-                          const Gap(AppSpacing.lg),
+                          const Gap(AppSpacing.xxl),
                           FButton(
                             onPress: state is LoginSubmitting ? null : _submit,
                             size: .lg,

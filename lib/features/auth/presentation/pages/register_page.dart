@@ -3,6 +3,7 @@ import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
 import 'package:blurb/features/auth/presentation/components/auth_social_sign_in.dart';
 import 'package:blurb/features/auth/presentation/components/auth_switch_prompt.dart';
 import 'package:blurb/features/auth/presentation/cubits/register/register_cubit.dart';
+import 'package:blurb/features/auth/presentation/cubits/social_auth/social_auth_cubit.dart';
 import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
 import 'package:blurb/features/auth/presentation/validation/auth_validators.dart';
 import 'package:blurb/theme/app_spacing.dart';
@@ -16,9 +17,17 @@ class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-    create: (_) =>
-        RegisterCubit(authRepository: context.read<AuthRepository>()),
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) =>
+            RegisterCubit(authRepository: context.read<AuthRepository>()),
+      ),
+      BlocProvider(
+        create: (_) =>
+            SocialAuthCubit(authRepository: context.read<AuthRepository>()),
+      ),
+    ],
     child: const RegisterView(),
   );
 }

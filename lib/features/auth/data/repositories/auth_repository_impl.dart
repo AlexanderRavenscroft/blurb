@@ -1,7 +1,9 @@
+import 'package:blurb/config/app_config.dart';
 import 'package:blurb/features/auth/domain/entities/auth_user.dart';
 import 'package:blurb/features/auth/domain/exceptions/auth_exception.dart';
 import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
 import 'package:blurb/utils/app_logger.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -52,6 +54,37 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         password: password,
         data: {'username': username},
+      );
+    } on supabase.AuthException catch (exception, stackTrace) {
+      Error.throwWithStackTrace(
+        _mapException(exception, stackTrace),
+        stackTrace,
+      );
+    }
+  }
+
+  @override
+  Future<void> signInWithGoogle() async {
+    const webClientId = AppConfig.googleWebClientId;
+    const iosClientId = AppConfig.googleIosClientId;
+
+    try {
+      final signIn = GoogleSignIn.instance;
+      await signIn.initialize(
+        clientId: iosClientId,
+        serverClientId: webClientId,
+      );
+
+      final googleAccount = await signIn.authenticate();
+      final idToken = googleAccount.authentication.idToken;
+
+      if (idToken == null) {
+        throw StateError('Google Sign-In returned no ID token.');
+      }
+
+      await supabaseInstance.auth.signInWithIdToken(
+        provider: supabase.OAuthProvider.google,
+        idToken: idToken,
       );
     } on supabase.AuthException catch (exception, stackTrace) {
       Error.throwWithStackTrace(

@@ -32,22 +32,21 @@ abstract final class AuthFailureMessageMapper {
     };
   }
 
-  static String forPasswordReset(AuthExceptionCode code) {
-    return switch (code) {
-      AuthExceptionCode.invalidEmail => 'Enter a valid email address.',
-      AuthExceptionCode.tooManyRequests =>
-        'Too many reset attempts. Try again later.',
-      AuthExceptionCode.network => 'Check your internet connection.',
-      AuthExceptionCode.operationNotAllowed =>
-        'Password reset is currently unavailable.',
-      _ => 'Could not send the reset email. Try again.',
-    };
-  }
-
   static String forSignOut(AuthExceptionCode code) {
     return switch (code) {
       AuthExceptionCode.network => 'Check your internet connection.',
       _ => 'Could not sign out. Try again.',
+    };
+  }
+
+  static String forSocialSignIn(AuthExceptionCode code) {
+    return switch (code) {
+      AuthExceptionCode.tooManyRequests =>
+        'Too many attempts. Try again later.',
+      AuthExceptionCode.network => 'Check your internet connection.',
+      AuthExceptionCode.operationNotAllowed =>
+        'This sign-in provider is currently unavailable.',
+      _ => 'Could not sign in. Try again.',
     };
   }
 }
