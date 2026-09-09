@@ -45,16 +45,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> register({
-    required String username,
     required String email,
     required String password,
   }) async {
     try {
-      await supabaseInstance.auth.signUp(
-        email: email,
-        password: password,
-        data: {'username': username},
-      );
+      await supabaseInstance.auth.signUp(email: email, password: password);
     } on supabase.AuthException catch (exception, stackTrace) {
       Error.throwWithStackTrace(
         _mapException(exception, stackTrace),

@@ -13,7 +13,6 @@ class RegisterCubit extends Cubit<RegisterState> {
     : super(const RegisterInitial());
 
   Future<void> register({
-    required String username,
     required String email,
     required String password,
   }) async {
@@ -22,11 +21,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     emit(const RegisterSubmitting());
 
     try {
-      await _authRepository.register(
-        username: username.trim(),
-        email: email.trim(),
-        password: password,
-      );
+      await _authRepository.register(email: email.trim(), password: password);
     } on AuthException catch (exception) {
       emit(RegisterFailure(exception.code));
     } catch (error, stackTrace) {

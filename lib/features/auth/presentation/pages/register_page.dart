@@ -43,13 +43,11 @@ class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _usernameController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _usernameController.dispose();
     super.dispose();
   }
 
@@ -98,24 +96,10 @@ class _RegisterViewState extends State<RegisterView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          FTextFormField(
-                            control: .managed(controller: _usernameController),
-                            label: const Text('Username'),
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                            hint: 'Your username',
-                            textInputAction: TextInputAction.next,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            validator: AuthValidators.username,
-                            autofillHints: const [AutofillHints.newUsername],
-                          ),
-                          const Gap(AppSpacing.xl),
                           FTextFormField.email(
                             control: .managed(controller: _emailController),
                             label: const Text('Email'),
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
+                            autovalidateMode: AutovalidateMode.onUnfocus,
                             hint: 'you@example.com',
                             textInputAction: TextInputAction.next,
                             validator: AuthValidators.registrationEmail,
@@ -124,8 +108,7 @@ class _RegisterViewState extends State<RegisterView> {
                           FTextFormField.password(
                             control: .managed(controller: _passwordController),
                             label: const Text('Password'),
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
+                            autovalidateMode: AutovalidateMode.onUnfocus,
                             hint:
                                 'At least ${AuthValidators.minimumPasswordLength} characters',
                             validator: AuthValidators.registrationPassword,
@@ -172,7 +155,6 @@ class _RegisterViewState extends State<RegisterView> {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
     context.read<RegisterCubit>().register(
-      username: _usernameController.text,
       email: _emailController.text,
       password: _passwordController.text,
     );

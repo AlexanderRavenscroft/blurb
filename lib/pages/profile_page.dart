@@ -1,5 +1,5 @@
+import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/auth/domain/exceptions/auth_exception.dart';
-import 'package:blurb/features/auth/presentation/cubits/auth/auth_cubit.dart';
 import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
 import 'package:blurb/utils/app_logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +19,7 @@ class ProfilePage extends StatelessWidget {
 
   Future<void> _signOut(BuildContext context) async {
     try {
-      await context.read<AuthCubit>().signOut();
+      await context.read<SessionCubit>().signOut();
     } on AuthException catch (exception) {
       if (!context.mounted) return;
       _showSignOutFailure(context, exception.code);

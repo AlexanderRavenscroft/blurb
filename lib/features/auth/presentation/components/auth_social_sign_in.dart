@@ -70,13 +70,6 @@ class AuthSocialSignIn extends StatelessWidget {
                 ),
               ),
               _SocialSignInButton(
-                provider: 'Discord',
-                icon: Icon(RemixIcons.discord_fill),
-                onPressed: isSubmitting
-                    ? null
-                    : () => context.read<SocialAuthCubit>().signInWithDiscord(),
-              ),
-              _SocialSignInButton(
                 provider: 'Facebook',
                 icon: Icon(
                   RemixIcons.facebook_circle_fill,
@@ -86,6 +79,13 @@ class AuthSocialSignIn extends StatelessWidget {
                     ? null
                     : () =>
                           context.read<SocialAuthCubit>().signInWithFacebook(),
+              ),
+              _SocialSignInButton(
+                provider: 'Discord',
+                icon: Icon(RemixIcons.discord_fill),
+                onPressed: isSubmitting
+                    ? null
+                    : () => context.read<SocialAuthCubit>().signInWithDiscord(),
               ),
             ],
           ),

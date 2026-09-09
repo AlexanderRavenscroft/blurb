@@ -1,8 +1,9 @@
 import 'package:blurb/app/main_shell.dart';
-import 'package:blurb/features/auth/presentation/cubits/auth/auth_cubit.dart';
+import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/auth/presentation/pages/login_page.dart';
 import 'package:blurb/features/auth/presentation/pages/register_page.dart';
 import 'package:blurb/features/auth/presentation/pages/splash_page.dart';
+import 'package:blurb/features/profile/presentation/pages/profile_setup_page.dart';
 import 'package:blurb/pages/create_post_page.dart';
 import 'package:blurb/pages/home_page.dart';
 import 'package:blurb/pages/notifications_page.dart';
@@ -14,6 +15,7 @@ enum AppRoute {
   splash,
   login,
   register,
+  profileSetup,
   home,
   search,
   createPost,
@@ -21,33 +23,41 @@ enum AppRoute {
   profile,
 }
 
-GoRouter createAppRouter(AuthCubit authCubit) {
+GoRouter createAppRouter(SessionCubit sessionCubit) {
   return GoRouter(
     initialLocation: '/splash',
     redirect: (context, state) {
-      final authState = authCubit.state;
+      final sessionState = sessionCubit.state;
       final location = state.matchedLocation;
 
       final homeLocation = state.namedLocation(AppRoute.home.name);
       final splashLocation = state.namedLocation(AppRoute.splash.name);
       final loginLocation = state.namedLocation(AppRoute.login.name);
       final registerLocation = state.namedLocation(AppRoute.register.name);
+      final profileSetupLocation = state.namedLocation(
+        AppRoute.profileSetup.name,
+      );
 
       final isOnSplash = location == splashLocation;
       final isOnLogin = location == loginLocation;
       final isOnRegister = location == registerLocation;
+      final isOnProfileSetup = location == profileSetupLocation;
       final isOnAuthPage = isOnLogin || isOnRegister;
 
-      if (authState is AuthChecking) {
+      if (sessionState is SessionChecking) {
         return isOnSplash ? null : splashLocation;
       }
 
-      if (authState is AuthUnauthenticated) {
+      if (sessionState is SessionUnauthenticated) {
         return isOnAuthPage ? null : loginLocation;
       }
 
-      if (authState is AuthAuthenticated) {
-        if (isOnSplash || isOnAuthPage) {
+      if (sessionState is SessionNeedsProfile) {
+        return isOnProfileSetup ? null : profileSetupLocation;
+      }
+
+      if (sessionState is SessionAuthenticated) {
+        if (isOnSplash || isOnAuthPage || isOnProfileSetup) {
           return homeLocation;
         }
 
@@ -71,6 +81,13 @@ GoRouter createAppRouter(AuthCubit authCubit) {
         path: '/register',
         name: AppRoute.register.name,
         builder: (context, state) => const RegisterPage(),
+        routes: [
+          GoRoute(
+            path: 'setup-profile',
+            name: AppRoute.profileSetup.name,
+            builder: (context, state) => const ProfileSetupPage(),
+          ),
+        ],
       ),
 
       StatefulShellRoute.indexedStack(

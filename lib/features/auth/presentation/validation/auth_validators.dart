@@ -2,13 +2,6 @@ abstract final class AuthValidators {
   static const int minimumPasswordLength = 6;
   static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
-  static String? username(String? value) {
-    if ((value ?? '').trim().length < 3) {
-      return 'Enter a username with at least 3 characters.';
-    }
-    return null;
-  }
-
   static String? loginEmail(String? value) {
     return _email(value);
   }
