@@ -21,6 +21,11 @@ final class SessionNeedsProfile extends SessionState {
 
 final class SessionAuthenticated extends SessionState {
   final AuthUser user;
+  final UserProfile profile;
 
-  const SessionAuthenticated({required this.user});
+  const SessionAuthenticated({required this.user, required this.profile});
+}
+
+final class SessionFailure extends SessionState {
+  const SessionFailure();
 }

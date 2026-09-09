@@ -1,7 +1,14 @@
 abstract final class ProfileValidators {
+  static final RegExp _usernamePattern = RegExp(r'^[a-z0-9_]+$');
+
   static String? username(String? value) {
-    if ((value ?? '').trim().length < 3) {
-      return 'Enter a username with at least 3 characters.';
+    final username = (value ?? '').trim();
+
+    if (username.length < 3 || username.length > 12) {
+      return 'Username must be between 3 and 12 characters.';
+    }
+    if (!_usernamePattern.hasMatch(username)) {
+      return 'Use only lowercase letters, numbers, and underscores.';
     }
     return null;
   }

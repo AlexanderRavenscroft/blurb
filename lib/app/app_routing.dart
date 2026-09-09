@@ -4,10 +4,10 @@ import 'package:blurb/features/auth/presentation/pages/login_page.dart';
 import 'package:blurb/features/auth/presentation/pages/register_page.dart';
 import 'package:blurb/features/auth/presentation/pages/splash_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_setup_page.dart';
+import 'package:blurb/features/profile/presentation/pages/profile_page.dart';
 import 'package:blurb/pages/create_post_page.dart';
 import 'package:blurb/pages/home_page.dart';
 import 'package:blurb/pages/notifications_page.dart';
-import 'package:blurb/pages/profile_page.dart';
 import 'package:blurb/pages/search_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -44,7 +44,7 @@ GoRouter createAppRouter(SessionCubit sessionCubit) {
       final isOnProfileSetup = location == profileSetupLocation;
       final isOnAuthPage = isOnLogin || isOnRegister;
 
-      if (sessionState is SessionChecking) {
+			if (sessionState is SessionChecking || sessionState is SessionFailure) {
         return isOnSplash ? null : splashLocation;
       }
 
