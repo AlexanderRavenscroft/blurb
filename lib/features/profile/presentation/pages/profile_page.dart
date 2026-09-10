@@ -1,12 +1,13 @@
+import 'package:blurb/app/app_routing.dart';
 import 'package:blurb/app/session/session_cubit.dart';
-import 'package:blurb/features/auth/domain/exceptions/auth_exception.dart';
-import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
+import 'package:blurb/features/profile/domain/entities/user_profile.dart';
 import 'package:blurb/theme/app_spacing.dart';
-import 'package:blurb/utils/app_logger.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:remixicon/remixicon.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -15,57 +16,172 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<SessionCubit, SessionState>(
     builder: (context, state) {
       if (state is! SessionAuthenticated) return const SizedBox.shrink();
-      final theme = context.theme;
 
-      return Center(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: .stretch,
-            children: [
-              Text(
-                'Username: ${state.profile.username}',
-                style: theme.typography.body.md,
-              ),
-              const Gap(AppSpacing.md),
-              Text(
-                'Full Name: ${state.profile.fullName}',
-                style: theme.typography.body.md,
-              ),
-              const Gap(AppSpacing.xl),
-              FButton(
-                onPress: () => _signOut(context),
-                child: const Text('Sign out'),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _ProfileView(profile: state.profile);
     },
   );
+}
 
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      await context.read<SessionCubit>().signOut();
-    } on AuthException catch (exception) {
-      if (!context.mounted) return;
-      _showSignOutFailure(context, exception.code);
-    } catch (error, stackTrace) {
-      log.e(
-        'Unexpected sign-out failure',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      if (!context.mounted) return;
-      _showSignOutFailure(context, AuthExceptionCode.unknown);
-    }
-  }
+class _ProfileView extends StatelessWidget {
+  final UserProfile profile;
 
-  void _showSignOutFailure(BuildContext context, AuthExceptionCode code) {
-    showFToast(
-      context: context,
-      title: Text(AuthFailureMessageMapper.forSignOut(code)),
-      variant: FToastVariant.destructive,
-      duration: const Duration(seconds: 3),
+  const _ProfileView({required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    final bio = profile.bio?.trim() ?? '';
+
+    return Column(
+      crossAxisAlignment: .stretch,
+      children: [
+        FHeader(
+          style: const .delta(
+            // titleTextStyle: TextStyleDelta.delta(),
+            // decoration: DecorationDelta.boxDelta(color: Colors.amber),
+            padding: .value(EdgeInsets.only(bottom: 0)),
+          ),
+          title: Text(
+            profile.username,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.theme.typography.display.xl,
+          ),
+          suffixes: [
+            FHeaderAction(
+              onPress: () => context.pushNamed(AppRoute.profileSettings.name),
+              semanticsLabel: 'Profile settings',
+              icon: const Icon(RemixIcons.settings_3_line),
+            ),
+          ],
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(top: AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: .stretch,
+              children: [
+                _ProfileSummary(profile: profile),
+                if (bio.isNotEmpty) ...[
+                  const Gap(AppSpacing.xl),
+                  Text(
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ',
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.theme.typography.body.sm,
+                  ),
+                ],
+                Gap(bio.isNotEmpty ? AppSpacing.xs : AppSpacing.xl),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FButton(
+                    onPress: () {},
+                    variant: .secondary,
+                    size: .sm,
+                    mainAxisSize: MainAxisSize.min,
+                    child: const Text('Edit profile'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
+}
+
+class _ProfileSummary extends StatelessWidget {
+  final UserProfile profile;
+
+  const _ProfileSummary({required this.profile});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      _ProfileAvatar(avatarUrl: profile.avatarUrl),
+      const Gap(AppSpacing.xl),
+      Expanded(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  profile.fullName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: context.theme.typography.body.md.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const Gap(AppSpacing.xs),
+            Row(
+              children: [
+                _ProfileStat(value: profile.postsCount, label: 'posts'),
+                _ProfileStat(value: profile.followersCount, label: 'followers'),
+                _ProfileStat(value: profile.followingCount, label: 'following'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+class _ProfileAvatar extends StatelessWidget {
+  final String? avatarUrl;
+
+  const _ProfileAvatar({required this.avatarUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final url = avatarUrl?.trim() ?? '';
+
+    if (url.isEmpty) {
+      return FAvatar.raw(size: 88);
+    }
+
+    return FAvatar(
+      image: NetworkImage(url),
+      size: 88,
+      semanticsLabel: 'Profile picture',
+      fallback: const Icon(RemixIcons.user_3_line),
+    );
+  }
+}
+
+class _ProfileStat extends StatelessWidget {
+  final int value;
+  final String label;
+
+  const _ProfileStat({required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$value',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.theme.typography.body.md.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.theme.typography.body.xs.copyWith(
+            color: context.theme.colors.mutedForeground,
+            height: 0.6,
+          ),
+        ),
+      ],
+    ),
+  );
 }

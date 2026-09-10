@@ -10,7 +10,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<UserProfile?> getProfile(String userId) async {
     final data = await _supabase
         .from('profiles')
-        .select('id, username, full_name')
+        .select('id, username, full_name, avatar_url')
         .eq('id', userId)
         .maybeSingle();
 
@@ -31,7 +31,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
             'username': username,
             'full_name': fullName,
           }, onConflict: 'id')
-          .select('id, username, full_name')
+          .select('id, username, full_name, avatar_url')
           .single();
 
       return _mapProfile(data);
@@ -50,5 +50,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
     id: data['id'] as String,
     username: data['username'] as String? ?? '',
     fullName: data['full_name'] as String? ?? '',
+    avatarUrl: data['avatar_url'] as String?,
   );
 }

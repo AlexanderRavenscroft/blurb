@@ -3,8 +3,9 @@ import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/auth/presentation/pages/login_page.dart';
 import 'package:blurb/features/auth/presentation/pages/register_page.dart';
 import 'package:blurb/features/auth/presentation/pages/splash_page.dart';
-import 'package:blurb/features/profile/presentation/pages/profile_setup_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_page.dart';
+import 'package:blurb/features/profile/presentation/pages/profile_settings_page.dart';
+import 'package:blurb/features/profile/presentation/pages/profile_setup_page.dart';
 import 'package:blurb/pages/create_post_page.dart';
 import 'package:blurb/pages/home_page.dart';
 import 'package:blurb/pages/notifications_page.dart';
@@ -21,6 +22,7 @@ enum AppRoute {
   createPost,
   notifications,
   profile,
+  profileSettings,
 }
 
 GoRouter createAppRouter(SessionCubit sessionCubit) {
@@ -44,7 +46,7 @@ GoRouter createAppRouter(SessionCubit sessionCubit) {
       final isOnProfileSetup = location == profileSetupLocation;
       final isOnAuthPage = isOnLogin || isOnRegister;
 
-			if (sessionState is SessionChecking || sessionState is SessionFailure) {
+      if (sessionState is SessionChecking || sessionState is SessionFailure) {
         return isOnSplash ? null : splashLocation;
       }
 
@@ -138,6 +140,11 @@ GoRouter createAppRouter(SessionCubit sessionCubit) {
         path: '/create-post',
         name: AppRoute.createPost.name,
         builder: (context, state) => const CreatePostPage(),
+      ),
+      GoRoute(
+        path: '/profile/settings',
+        name: AppRoute.profileSettings.name,
+        builder: (context, state) => const ProfileSettingsPage(),
       ),
     ],
   );
