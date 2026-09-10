@@ -1,6 +1,6 @@
 import 'package:blurb/app/session/session_cubit.dart';
-import 'package:blurb/features/auth/domain/exceptions/auth_exception.dart';
-import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
+import 'package:blurb/features/auth/domain/auth_exception.dart';
+import 'package:blurb/features/auth/presentation/auth_failure_message_mapper.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:blurb/utils/app_logger.dart';
 import 'package:flutter/material.dart';

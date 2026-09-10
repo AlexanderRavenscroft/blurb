@@ -1,4 +1,4 @@
-import 'package:blurb/features/auth/domain/entities/auth_user.dart';
+import 'package:blurb/features/auth/domain/auth_user.dart';
 
 abstract interface class AuthRepository {
   Stream<AuthUser?> watchUser();

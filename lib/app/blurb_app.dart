@@ -1,9 +1,9 @@
 import 'package:blurb/app/app_routing.dart';
 import 'package:blurb/app/session/session_cubit.dart';
-import 'package:blurb/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
-import 'package:blurb/features/profile/data/repositories/profile_repository_impl.dart';
-import 'package:blurb/features/profile/domain/repositories/profile_repository.dart';
+import 'package:blurb/features/auth/data/auth_repository_impl.dart';
+import 'package:blurb/features/auth/domain/auth_repository.dart';
+import 'package:blurb/features/profile/data/profile_repository_impl.dart';
+import 'package:blurb/features/profile/domain/profile_repository.dart';
 import 'package:blurb/theme/theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';

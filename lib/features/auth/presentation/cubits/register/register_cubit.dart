@@ -1,5 +1,5 @@
-import 'package:blurb/features/auth/domain/exceptions/auth_exception.dart';
-import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
+import 'package:blurb/features/auth/domain/auth_exception.dart';
+import 'package:blurb/features/auth/domain/auth_repository.dart';
 import 'package:blurb/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

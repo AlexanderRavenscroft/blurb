@@ -1,8 +1,8 @@
 import 'package:blurb/app/session/session_cubit.dart';
-import 'package:blurb/features/profile/domain/repositories/profile_repository.dart';
+import 'package:blurb/features/profile/domain/profile_repository.dart';
 import 'package:blurb/features/profile/presentation/cubits/profile/profile_cubit.dart';
-import 'package:blurb/features/profile/presentation/mappers/profile_failure_message_mapper.dart';
-import 'package:blurb/features/profile/presentation/validation/profile_validators.dart';
+import 'package:blurb/features/profile/presentation/profile_failure_message_mapper.dart';
+import 'package:blurb/features/profile/presentation/profile_validators.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

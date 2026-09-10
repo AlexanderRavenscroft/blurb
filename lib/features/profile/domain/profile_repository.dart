@@ -1,4 +1,4 @@
-import 'package:blurb/features/profile/domain/entities/user_profile.dart';
+import 'package:blurb/features/profile/domain/user_profile.dart';
 
 abstract interface class ProfileRepository {
   Future<UserProfile?> getProfile(String userId);

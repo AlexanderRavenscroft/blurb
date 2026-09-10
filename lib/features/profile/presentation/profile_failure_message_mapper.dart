@@ -1,4 +1,4 @@
-import 'package:blurb/features/profile/domain/exceptions/profile_exception.dart';
+import 'package:blurb/features/profile/domain/profile_exception.dart';
 
 abstract final class ProfileFailureMessageMapper {
   static String forSave(ProfileExceptionCode code) {

@@ -1,6 +1,6 @@
 import 'package:blurb/app/app_routing.dart';
 import 'package:blurb/app/session/session_cubit.dart';
-import 'package:blurb/features/profile/domain/entities/user_profile.dart';
+import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

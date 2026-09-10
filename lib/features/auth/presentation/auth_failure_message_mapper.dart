@@ -1,4 +1,4 @@
-import 'package:blurb/features/auth/domain/exceptions/auth_exception.dart';
+import 'package:blurb/features/auth/domain/auth_exception.dart';
 
 abstract final class AuthFailureMessageMapper {
   static String forLogin(AuthExceptionCode code) {

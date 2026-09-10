@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:blurb/features/auth/presentation/auth_failure_message_mapper.dart';
 import 'package:blurb/features/auth/presentation/cubits/social_auth/social_auth_cubit.dart';
-import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

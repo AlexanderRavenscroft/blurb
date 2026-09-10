@@ -1,7 +1,7 @@
 import 'package:blurb/config/app_config.dart';
-import 'package:blurb/features/auth/domain/entities/auth_user.dart';
-import 'package:blurb/features/auth/domain/exceptions/auth_exception.dart';
-import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
+import 'package:blurb/features/auth/domain/auth_exception.dart';
+import 'package:blurb/features/auth/domain/auth_repository.dart';
+import 'package:blurb/features/auth/domain/auth_user.dart';
 import 'package:blurb/utils/app_logger.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -125,6 +125,10 @@ class AuthRepositoryImpl implements AuthRepository {
     supabase.AuthException exception,
     StackTrace stackTrace,
   ) {
+    if (exception is supabase.AuthRetryableFetchException &&
+        exception.statusCode == null) {
+      return const AuthException(AuthExceptionCode.network);
+    }
     switch (exception.code) {
       case 'invalid_credentials':
       case 'user_not_found':

@@ -1,6 +1,6 @@
-import 'package:blurb/features/profile/domain/entities/user_profile.dart';
-import 'package:blurb/features/profile/domain/exceptions/profile_exception.dart';
-import 'package:blurb/features/profile/domain/repositories/profile_repository.dart';
+import 'package:blurb/features/profile/domain/profile_exception.dart';
+import 'package:blurb/features/profile/domain/profile_repository.dart';
+import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {

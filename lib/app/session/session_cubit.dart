@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:blurb/features/auth/domain/entities/auth_user.dart';
-import 'package:blurb/features/auth/domain/repositories/auth_repository.dart';
-import 'package:blurb/features/profile/domain/entities/user_profile.dart';
-import 'package:blurb/features/profile/domain/repositories/profile_repository.dart';
+import 'package:blurb/features/auth/domain/auth_user.dart';
+import 'package:blurb/features/auth/domain/auth_repository.dart';
+import 'package:blurb/features/profile/domain/user_profile.dart';
+import 'package:blurb/features/profile/domain/profile_repository.dart';
 import 'package:blurb/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
