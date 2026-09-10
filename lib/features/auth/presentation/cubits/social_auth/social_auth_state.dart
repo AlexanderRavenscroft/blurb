@@ -13,6 +13,10 @@ final class SocialAuthSubmitting extends SocialAuthState {
   const SocialAuthSubmitting();
 }
 
+final class SocialAuthAwaitingOAuthRedirect extends SocialAuthState {
+  const SocialAuthAwaitingOAuthRedirect();
+}
+
 final class SocialAuthFailure extends SocialAuthState {
   final AuthExceptionCode code;
 

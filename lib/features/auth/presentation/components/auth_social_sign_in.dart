@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:app_links/app_links.dart';
 import 'package:blurb/features/auth/presentation/cubits/social_auth/social_auth_cubit.dart';
 import 'package:blurb/features/auth/presentation/mappers/auth_failure_message_mapper.dart';
 import 'package:blurb/theme/app_spacing.dart';
@@ -7,14 +10,75 @@ import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
 import 'package:remixicon/remixicon.dart';
 
-class AuthSocialSignIn extends StatelessWidget {
+class AuthSocialSignIn extends StatefulWidget {
   const AuthSocialSignIn({super.key});
+
+  @override
+  State<AuthSocialSignIn> createState() => _AuthSocialSignInState();
+}
+
+class _AuthSocialSignInState extends State<AuthSocialSignIn>
+    with WidgetsBindingObserver {
+  static const _resumeGracePeriod = Duration(milliseconds: 500);
+
+  late final SocialAuthCubit _socialAuthCubit;
+  late final StreamSubscription<Uri> _deepLinkSubscription;
+  Timer? _resumeTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _socialAuthCubit = context.read<SocialAuthCubit>();
+    WidgetsBinding.instance.addObserver(this);
+    _deepLinkSubscription = AppLinks().uriLinkStream.listen(_handleDeepLink);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(
+      _resumeGracePeriod,
+      _socialAuthCubit.oauthFlowReturnedWithoutRedirect,
+    );
+  }
+
+  void _handleDeepLink(Uri uri) {
+    _resumeTimer?.cancel();
+
+    final parameters = <String, String>{...uri.queryParameters};
+    if (uri.fragment.isNotEmpty) {
+      parameters.addAll(Uri.splitQueryString(uri.fragment));
+    }
+
+    final hasError =
+        parameters.containsKey('error') ||
+        parameters.containsKey('error_code') ||
+        parameters.containsKey('error_description');
+
+    if (hasError) {
+      _socialAuthCubit.oauthRedirectFailed();
+    } else {
+      _socialAuthCubit.oauthRedirectReceived();
+    }
+  }
+
+  @override
+  void dispose() {
+    _resumeTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_deepLinkSubscription.cancel());
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
     final isSubmitting = context.select(
-      (SocialAuthCubit cubit) => cubit.state is SocialAuthSubmitting,
+      (SocialAuthCubit cubit) =>
+          cubit.state is SocialAuthSubmitting ||
+          cubit.state is SocialAuthAwaitingOAuthRedirect,
     );
 
     return BlocListener<SocialAuthCubit, SocialAuthState>(
@@ -82,7 +146,7 @@ class AuthSocialSignIn extends StatelessWidget {
               ),
               _SocialSignInButton(
                 provider: 'Discord',
-                icon: Icon(RemixIcons.discord_fill),
+                icon: Icon(RemixIcons.discord_fill, color: Color(0xFF5865F2)),
                 onPressed: isSubmitting
                     ? null
                     : () => context.read<SocialAuthCubit>().signInWithDiscord(),
@@ -109,6 +173,7 @@ class _SocialSignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
+
     return IconButton.outlined(
       tooltip: 'Continue with $provider',
       style: IconButton.styleFrom(
