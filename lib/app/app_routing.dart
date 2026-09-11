@@ -3,6 +3,7 @@ import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/auth/presentation/pages/login_page.dart';
 import 'package:blurb/features/auth/presentation/pages/register_page.dart';
 import 'package:blurb/features/auth/presentation/pages/splash_page.dart';
+import 'package:blurb/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_settings_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_setup_page.dart';
@@ -22,6 +23,7 @@ enum AppRoute {
   createPost,
   notifications,
   profile,
+  editProfile,
   profileSettings,
 }
 
@@ -140,6 +142,11 @@ GoRouter createAppRouter(SessionCubit sessionCubit) {
         path: '/create-post',
         name: AppRoute.createPost.name,
         builder: (context, state) => const CreatePostPage(),
+      ),
+      GoRoute(
+        path: '/edit-profile',
+        name: AppRoute.editProfile.name,
+        builder: (context, state) => const EditProfilePage(),
       ),
       GoRoute(
         path: '/profile/settings',

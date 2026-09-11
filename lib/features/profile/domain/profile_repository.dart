@@ -7,5 +7,6 @@ abstract interface class ProfileRepository {
     required String userId,
     required String username,
     required String fullName,
+    required String? bio,
   });
 }

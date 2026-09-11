@@ -143,6 +143,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       userId: session.user.id,
       username: _usernameController.text,
       fullName: _fullNameController.text,
+      bio: null,
     );
   }
 }

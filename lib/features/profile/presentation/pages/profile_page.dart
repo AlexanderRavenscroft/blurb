@@ -1,6 +1,7 @@
 import 'package:blurb/app/app_routing.dart';
 import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/profile/domain/user_profile.dart';
+import 'package:blurb/features/profile/presentation/components/profile_avatar.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,11 +36,7 @@ class _ProfileView extends StatelessWidget {
       crossAxisAlignment: .stretch,
       children: [
         FHeader(
-          style: const .delta(
-            // titleTextStyle: TextStyleDelta.delta(),
-            // decoration: DecorationDelta.boxDelta(color: Colors.amber),
-            padding: .value(EdgeInsets.only(bottom: 0)),
-          ),
+          style: const .delta(padding: .value(EdgeInsets.only(bottom: 0))),
           title: Text(
             profile.username,
             maxLines: 1,
@@ -62,19 +59,19 @@ class _ProfileView extends StatelessWidget {
               children: [
                 _ProfileSummary(profile: profile),
                 if (bio.isNotEmpty) ...[
-                  const Gap(AppSpacing.xl),
+                  const Gap(AppSpacing.lg),
                   Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ',
+                    bio,
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                     style: context.theme.typography.body.sm,
                   ),
                 ],
-                Gap(bio.isNotEmpty ? AppSpacing.xs : AppSpacing.xl),
+                Gap(bio.isNotEmpty ? AppSpacing.sm : AppSpacing.xl),
                 Align(
                   alignment: Alignment.centerRight,
                   child: FButton(
-                    onPress: () {},
+                    onPress: () => context.pushNamed(AppRoute.editProfile.name),
                     variant: .secondary,
                     size: .sm,
                     mainAxisSize: MainAxisSize.min,
@@ -98,7 +95,7 @@ class _ProfileSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      _ProfileAvatar(avatarUrl: profile.avatarUrl),
+      ProfileAvatar(avatarUrl: profile.avatarUrl),
       const Gap(AppSpacing.xl),
       Expanded(
         child: Column(
@@ -129,28 +126,6 @@ class _ProfileSummary extends StatelessWidget {
       ),
     ],
   );
-}
-
-class _ProfileAvatar extends StatelessWidget {
-  final String? avatarUrl;
-
-  const _ProfileAvatar({required this.avatarUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    final url = avatarUrl?.trim() ?? '';
-
-    if (url.isEmpty) {
-      return FAvatar.raw(size: 88);
-    }
-
-    return FAvatar(
-      image: NetworkImage(url),
-      size: 88,
-      semanticsLabel: 'Profile picture',
-      fallback: const Icon(RemixIcons.user_3_line),
-    );
-  }
 }
 
 class _ProfileStat extends StatelessWidget {

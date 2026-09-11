@@ -17,25 +17,29 @@ class ProfileCubit extends Cubit<ProfileState> {
     required String userId,
     required String username,
     required String fullName,
+    required String? bio,
   }) async {
     if (state is ProfileSaving) return;
     emit(const ProfileSaving());
 
     try {
+      final normalizedBio = bio?.trim();
+      final cleanedBio = normalizedBio == null || normalizedBio.isEmpty
+          ? null
+          : normalizedBio;
+
       final profile = await _profileRepository.saveProfile(
         userId: userId,
         username: username.trim(),
         fullName: fullName.trim(),
+        bio: cleanedBio,
       );
-      if (!isClosed) emit(ProfileSaved(profile));
+      emit(ProfileSaved(profile));
     } on ProfileException catch (exception) {
-      if (isClosed) return;
       emit(ProfileFailure(exception.code));
     } catch (error, stackTrace) {
       log.e('Profile save failed', error: error, stackTrace: stackTrace);
-      if (!isClosed) {
-        emit(const ProfileFailure(ProfileExceptionCode.unknown));
-      }
+      emit(const ProfileFailure(ProfileExceptionCode.unknown));
     }
   }
 }

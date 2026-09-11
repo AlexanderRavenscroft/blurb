@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:blurb/features/auth/domain/auth_user.dart';
 import 'package:blurb/features/auth/domain/auth_repository.dart';
-import 'package:blurb/features/profile/domain/user_profile.dart';
+import 'package:blurb/features/auth/domain/auth_user.dart';
 import 'package:blurb/features/profile/domain/profile_repository.dart';
+import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:blurb/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,9 +62,14 @@ class SessionCubit extends Cubit<SessionState> {
   void profileSaved(UserProfile profile) {
     final currentState = state;
 
-    if (currentState is! SessionNeedsProfile) return;
+    if (currentState is SessionNeedsProfile) {
+      emit(SessionAuthenticated(user: currentState.user, profile: profile));
+      return;
+    }
 
-    emit(SessionAuthenticated(user: currentState.user, profile: profile));
+    if (currentState is SessionAuthenticated) {
+      emit(SessionAuthenticated(user: currentState.user, profile: profile));
+    }
   }
 
   Future<void> signOut() => _authRepository.signOut();

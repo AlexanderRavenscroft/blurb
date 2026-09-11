@@ -1,4 +1,6 @@
 abstract final class ProfileValidators {
+  static const int maximumBioLength = 120;
+
   static final RegExp _usernamePattern = RegExp(r'^[a-z0-9_]+$');
 
   static String? username(String? value) {
@@ -16,6 +18,13 @@ abstract final class ProfileValidators {
   static String? fullName(String? value) {
     if ((value ?? '').trim().isEmpty) {
       return 'Enter your full name.';
+    }
+    return null;
+  }
+
+  static String? bio(String? value) {
+    if ((value ?? '').trim().length > maximumBioLength) {
+      return 'Bio cannot exceed $maximumBioLength characters.';
     }
     return null;
   }
