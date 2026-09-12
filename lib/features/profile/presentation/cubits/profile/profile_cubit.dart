@@ -17,7 +17,9 @@ class ProfileCubit extends Cubit<ProfileState> {
     required String userId,
     required String username,
     required String fullName,
-    required String? bio,
+    String? bio,
+    Uint8List? avatarBytes,
+    String? avatarExtension,
   }) async {
     if (state is ProfileSaving) return;
     emit(const ProfileSaving());
@@ -33,6 +35,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         username: username.trim(),
         fullName: fullName.trim(),
         bio: cleanedBio,
+        avatarBytes: avatarBytes,
+        avatarExtension: avatarExtension,
       );
       emit(ProfileSaved(profile));
     } on ProfileException catch (exception) {

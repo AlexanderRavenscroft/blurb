@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:blurb/features/profile/domain/user_profile.dart';
 
 abstract interface class ProfileRepository {
@@ -7,6 +9,8 @@ abstract interface class ProfileRepository {
     required String userId,
     required String username,
     required String fullName,
-    required String? bio,
+    String? bio,
+    Uint8List? avatarBytes,
+    String? avatarExtension,
   });
 }
