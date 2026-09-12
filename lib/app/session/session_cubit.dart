@@ -13,7 +13,9 @@ part 'session_state.dart';
 class SessionCubit extends Cubit<SessionState> {
   final AuthRepository _authRepository;
   final ProfileRepository _profileRepository;
+
   late final StreamSubscription<AuthUser?> _authSubscription;
+  late final StreamSubscription<UserProfile> _profileSubscription;
 
   SessionCubit({
     required this._authRepository,
@@ -35,6 +37,21 @@ class SessionCubit extends Cubit<SessionState> {
             }
           },
         );
+    _profileSubscription = _profileRepository.profileChanges.listen((profile) {
+      final user = switch (state) {
+        SessionAuthenticated s => s.user,
+        SessionNeedsProfile s => s.user,
+        _ => null,
+      };
+
+      if (user == null || user.id != profile.id) return;
+
+      emit(
+        profile.isComplete
+            ? SessionAuthenticated(user: user, profile: profile)
+            : SessionNeedsProfile(user: user),
+      );
+    });
   }
 
   Future<void> _onUserChanged(AuthUser? user) async {
@@ -59,24 +76,12 @@ class SessionCubit extends Cubit<SessionState> {
     }
   }
 
-  void profileSaved(UserProfile profile) {
-    final currentState = state;
-
-    if (currentState is SessionNeedsProfile) {
-      emit(SessionAuthenticated(user: currentState.user, profile: profile));
-      return;
-    }
-
-    if (currentState is SessionAuthenticated) {
-      emit(SessionAuthenticated(user: currentState.user, profile: profile));
-    }
-  }
-
   Future<void> signOut() => _authRepository.signOut();
 
   @override
   Future<void> close() async {
     await _authSubscription.cancel();
+    await _profileSubscription.cancel();
     await super.close();
   }
 }

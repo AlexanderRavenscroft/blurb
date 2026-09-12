@@ -2,7 +2,7 @@ class UserProfile {
   final String id;
   final String username;
   final String fullName;
-  final String? bio;
+  final String bio;
   final String? avatarUrl;
   final int followersCount;
   final int followingCount;
@@ -12,7 +12,7 @@ class UserProfile {
     required this.id,
     required this.username,
     required this.fullName,
-    this.bio,
+    required this.bio,
     this.avatarUrl,
     this.followersCount = 0,
     this.followingCount = 0,

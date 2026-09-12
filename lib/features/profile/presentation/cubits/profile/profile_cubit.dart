@@ -1,6 +1,5 @@
 import 'package:blurb/features/profile/domain/profile_exception.dart';
 import 'package:blurb/features/profile/domain/profile_repository.dart';
-import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:blurb/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,8 +14,8 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> save({
     required String userId,
-    required String username,
-    required String fullName,
+    String? username,
+    String? fullName,
     String? bio,
     Uint8List? avatarBytes,
     String? avatarExtension,
@@ -25,20 +24,15 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(const ProfileSaving());
 
     try {
-      final normalizedBio = bio?.trim();
-      final cleanedBio = normalizedBio == null || normalizedBio.isEmpty
-          ? null
-          : normalizedBio;
-
-      final profile = await _profileRepository.saveProfile(
+      await _profileRepository.saveProfile(
         userId: userId,
-        username: username.trim(),
-        fullName: fullName.trim(),
-        bio: cleanedBio,
+        username: username?.trim(),
+        fullName: fullName?.trim(),
+        bio: bio?.trim(),
         avatarBytes: avatarBytes,
         avatarExtension: avatarExtension,
       );
-      emit(ProfileSaved(profile));
+      emit(const ProfileSaved());
     } on ProfileException catch (exception) {
       emit(ProfileFailure(exception.code));
     } catch (error, stackTrace) {

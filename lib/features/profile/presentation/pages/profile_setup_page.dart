@@ -47,9 +47,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
 
     return BlocListener<ProfileCubit, ProfileState>(
       listener: (context, state) {
-        if (state is ProfileSaved) {
-          context.read<SessionCubit>().profileSaved(state.profile);
-        } else if (state is ProfileFailure) {
+        if (state is ProfileFailure) {
           showFToast(
             context: context,
             title: Text(ProfileFailureMessageMapper.forSave(state.code)),

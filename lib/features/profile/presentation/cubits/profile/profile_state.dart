@@ -14,9 +14,7 @@ final class ProfileSaving extends ProfileState {
 }
 
 final class ProfileSaved extends ProfileState {
-  final UserProfile profile;
-
-  const ProfileSaved(this.profile);
+  const ProfileSaved();
 }
 
 final class ProfileFailure extends ProfileState {

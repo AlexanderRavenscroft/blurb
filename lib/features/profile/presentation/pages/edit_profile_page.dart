@@ -61,7 +61,7 @@ class _EditProfileViewState extends State<EditProfileView> {
     super.initState();
     _usernameController = TextEditingController(text: widget.profile.username);
     _fullNameController = TextEditingController(text: widget.profile.fullName);
-    _bioController = TextEditingController(text: widget.profile.bio ?? '');
+    _bioController = TextEditingController(text: widget.profile.bio);
   }
 
   @override
@@ -80,7 +80,6 @@ class _EditProfileViewState extends State<EditProfileView> {
     return BlocListener<ProfileCubit, ProfileState>(
       listener: (context, state) {
         if (state is ProfileSaved) {
-          context.read<SessionCubit>().profileSaved(state.profile);
           context.pop();
         } else if (state is ProfileFailure) {
           showFToast(

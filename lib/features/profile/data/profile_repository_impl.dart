@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:blurb/features/profile/domain/profile_exception.dart';
@@ -8,8 +9,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   static const _avatarBucket = 'avatars';
-
   final _supabase = Supabase.instance.client;
+
+  final _profileChanges = StreamController<UserProfile>.broadcast();
+
+  @override
+  Stream<UserProfile> get profileChanges => _profileChanges.stream;
 
   @override
   Future<UserProfile?> getProfile(String userId) async {
@@ -23,10 +28,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<UserProfile> saveProfile({
+  Future<void> saveProfile({
     required String userId,
-    required String username,
-    required String fullName,
+    String? username,
+    String? fullName,
     String? bio,
     Uint8List? avatarBytes,
     String? avatarExtension,
@@ -44,15 +49,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
           .from('profiles')
           .upsert({
             'id': userId,
-            'username': username,
-            'full_name': fullName,
-            'bio': bio,
+            'username': ?username,
+            'full_name': ?fullName,
+            'bio': ?bio,
             'avatar_url': ?avatarUrl,
           }, onConflict: 'id')
           .select('id, username, full_name, avatar_url, bio')
           .single();
 
-      return _mapProfile(data);
+      final profile = _mapProfile(data);
+      _profileChanges.add(profile);
     } on PostgrestException catch (exception, stackTrace) {
       if (exception.code == '23505') {
         Error.throwWithStackTrace(
@@ -95,7 +101,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     id: data['id'] as String,
     username: data['username'] as String? ?? '',
     fullName: data['full_name'] as String? ?? '',
-    bio: data['bio'] as String?,
+    bio: data['bio'] as String,
     avatarUrl: data['avatar_url'] as String?,
   );
 }

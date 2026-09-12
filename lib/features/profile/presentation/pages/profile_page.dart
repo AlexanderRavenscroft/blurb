@@ -30,7 +30,7 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bio = profile.bio?.trim() ?? '';
+    final bio = profile.bio.trim();
 
     return Column(
       crossAxisAlignment: .stretch,
