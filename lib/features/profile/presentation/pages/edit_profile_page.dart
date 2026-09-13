@@ -3,7 +3,7 @@ import 'package:blurb/features/profile/domain/profile_exception.dart';
 import 'package:blurb/features/profile/domain/profile_repository.dart';
 import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:blurb/features/profile/presentation/components/profile_avatar.dart';
-import 'package:blurb/features/profile/presentation/cubits/profile/profile_cubit.dart';
+import 'package:blurb/features/profile/presentation/cubits/profile_form/profile_form_cubit.dart';
 import 'package:blurb/features/profile/presentation/profile_failure_message_mapper.dart';
 import 'package:blurb/features/profile/presentation/profile_validators.dart';
 import 'package:blurb/theme/app_spacing.dart';
@@ -28,8 +28,9 @@ class EditProfilePage extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (_) =>
-          ProfileCubit(profileRepository: context.read<ProfileRepository>()),
+      create: (_) => ProfileFormCubit(
+        profileRepository: context.read<ProfileRepository>(),
+      ),
       child: EditProfileView(profile: sessionState.profile),
     );
   }
@@ -74,14 +75,14 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<ProfileCubit>().state;
-    final isSaving = state is ProfileSaving;
+    final state = context.watch<ProfileFormCubit>().state;
+    final isSaving = state is ProfileFormSaving;
 
-    return BlocListener<ProfileCubit, ProfileState>(
+    return BlocListener<ProfileFormCubit, ProfileFormState>(
       listener: (context, state) {
-        if (state is ProfileSaved) {
+        if (state is ProfileFormSaved) {
           context.pop();
-        } else if (state is ProfileFailure) {
+        } else if (state is ProfileFormFailure) {
           showFToast(
             context: context,
             title: Text(ProfileFailureMessageMapper.forSave(state.code)),
@@ -259,7 +260,7 @@ class _EditProfileViewState extends State<EditProfileView> {
     if (session is! SessionAuthenticated) return;
 
     FocusScope.of(context).unfocus();
-    context.read<ProfileCubit>().save(
+    context.read<ProfileFormCubit>().save(
       userId: session.user.id,
       username: _usernameController.text,
       fullName: _fullNameController.text,

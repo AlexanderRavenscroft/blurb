@@ -1,6 +1,6 @@
 import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/profile/domain/profile_repository.dart';
-import 'package:blurb/features/profile/presentation/cubits/profile/profile_cubit.dart';
+import 'package:blurb/features/profile/presentation/cubits/profile_form/profile_form_cubit.dart';
 import 'package:blurb/features/profile/presentation/profile_failure_message_mapper.dart';
 import 'package:blurb/features/profile/presentation/profile_validators.dart';
 import 'package:blurb/theme/app_spacing.dart';
@@ -15,7 +15,7 @@ class ProfileSetupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider(
     create: (_) =>
-        ProfileCubit(profileRepository: context.read<ProfileRepository>()),
+        ProfileFormCubit(profileRepository: context.read<ProfileRepository>()),
     child: const ProfileSetupView(),
   );
 }
@@ -42,12 +42,12 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    final state = context.watch<ProfileCubit>().state;
-    final isSaving = state is ProfileSaving;
+    final state = context.watch<ProfileFormCubit>().state;
+    final isSaving = state is ProfileFormSaving;
 
-    return BlocListener<ProfileCubit, ProfileState>(
+    return BlocListener<ProfileFormCubit, ProfileFormState>(
       listener: (context, state) {
-        if (state is ProfileFailure) {
+        if (state is ProfileFormFailure) {
           showFToast(
             context: context,
             title: Text(ProfileFailureMessageMapper.forSave(state.code)),
@@ -137,7 +137,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
     if (session is! SessionNeedsProfile) return;
 
     FocusScope.of(context).unfocus();
-    context.read<ProfileCubit>().save(
+    context.read<ProfileFormCubit>().save(
       userId: session.user.id,
       username: _usernameController.text,
       fullName: _fullNameController.text,

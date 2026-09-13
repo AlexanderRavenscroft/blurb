@@ -4,13 +4,13 @@ import 'package:blurb/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'profile_state.dart';
+part 'profile_form_state.dart';
 
-class ProfileCubit extends Cubit<ProfileState> {
+class ProfileFormCubit extends Cubit<ProfileFormState> {
   final ProfileRepository _profileRepository;
 
-  ProfileCubit({required this._profileRepository})
-    : super(const ProfileInitial());
+  ProfileFormCubit({required this._profileRepository})
+    : super(const ProfileFormInitial());
 
   Future<void> save({
     required String userId,
@@ -20,8 +20,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     Uint8List? avatarBytes,
     String? avatarExtension,
   }) async {
-    if (state is ProfileSaving) return;
-    emit(const ProfileSaving());
+    if (state is ProfileFormSaving) return;
+    emit(const ProfileFormSaving());
 
     try {
       await _profileRepository.saveProfile(
@@ -32,12 +32,12 @@ class ProfileCubit extends Cubit<ProfileState> {
         avatarBytes: avatarBytes,
         avatarExtension: avatarExtension,
       );
-      emit(const ProfileSaved());
+      emit(const ProfileFormSaved());
     } on ProfileException catch (exception) {
-      emit(ProfileFailure(exception.code));
+      emit(ProfileFormFailure(exception.code));
     } catch (error, stackTrace) {
       log.e('Profile save failed', error: error, stackTrace: stackTrace);
-      emit(const ProfileFailure(ProfileExceptionCode.unknown));
+      emit(const ProfileFormFailure(ProfileExceptionCode.unknown));
     }
   }
 }
