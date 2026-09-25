@@ -42,6 +42,8 @@ inspector_readiness_poll_call_timeout_ms = 1000 # Per-call timeout for isWidgetT
 # into a "+ N more widgets" leader row. Toggle at runtime with Shift+H.
 hide_implementation_widgets = true
 
+[devtools.logging]
+
 [editor]
 # Editor command (leave empty for auto-detection)
 # Auto-detected from: parent IDE, $VISUAL, $EDITOR, or common editors in PATH
@@ -49,6 +51,16 @@ command = ""
 # Pattern for opening file at line/column
 # Variables: $EDITOR, $FILE, $LINE, $COLUMN
 open_pattern = "$EDITOR $FILE:$LINE"
+
+[dap]
+
+[flutter]
+
+[native_logs]
+
+[native_logs.tags]
+
+[toolchain]
 
 # [flutter]
 # Explicit Flutter SDK path override (highest priority in detection chain).

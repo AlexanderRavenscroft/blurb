@@ -5,12 +5,12 @@ import 'package:blurb/features/auth/presentation/pages/register_page.dart';
 import 'package:blurb/features/auth/presentation/pages/splash_page.dart';
 import 'package:blurb/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_page.dart';
+import 'package:blurb/features/profile/presentation/pages/profile_search_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_settings_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_setup_page.dart';
 import 'package:blurb/pages/create_post_page.dart';
 import 'package:blurb/pages/home_page.dart';
 import 'package:blurb/pages/notifications_page.dart';
-import 'package:blurb/pages/search_page.dart';
 import 'package:go_router/go_router.dart';
 
 enum AppRoute {
@@ -19,7 +19,7 @@ enum AppRoute {
   register,
   profileSetup,
   home,
-  search,
+  profileSearch,
   createPost,
   notifications,
   profile,
@@ -112,8 +112,8 @@ GoRouter createAppRouter(SessionCubit sessionCubit) {
             routes: [
               GoRoute(
                 path: '/search',
-                name: AppRoute.search.name,
-                builder: (context, state) => const SearchPage(),
+                name: AppRoute.profileSearch.name,
+                builder: (context, state) => const ProfileSearchPage(),
               ),
             ],
           ),

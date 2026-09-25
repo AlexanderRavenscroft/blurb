@@ -7,6 +7,8 @@ abstract interface class ProfileRepository {
 
   Future<UserProfile?> getProfile(String userId);
 
+  Future<List<UserProfile>> getProfilesExcludingUser(String userId);
+
   Future<void> saveProfile({
     required String userId,
     String? username,

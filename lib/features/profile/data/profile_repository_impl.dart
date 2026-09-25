@@ -28,6 +28,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<List<UserProfile>> getProfilesExcludingUser(String userId) async {
+    final data = await _supabase
+        .from('profiles')
+        .select('id, username, full_name, avatar_url, bio')
+        .neq('id', userId);
+
+    return data.map(_mapProfile).toList();
+  }
+
+  @override
   Future<void> saveProfile({
     required String userId,
     String? username,
