@@ -3,6 +3,7 @@ import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/auth/presentation/pages/login_page.dart';
 import 'package:blurb/features/auth/presentation/pages/register_page.dart';
 import 'package:blurb/features/auth/presentation/pages/splash_page.dart';
+import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:blurb/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_page.dart';
 import 'package:blurb/features/profile/presentation/pages/profile_search_page.dart';
@@ -23,6 +24,7 @@ enum AppRoute {
   createPost,
   notifications,
   profile,
+  publicProfile,
   editProfile,
   profileSettings,
 }
@@ -114,6 +116,15 @@ GoRouter createAppRouter(SessionCubit sessionCubit) {
                 path: '/search',
                 name: AppRoute.profileSearch.name,
                 builder: (context, state) => const ProfileSearchPage(),
+                routes: [
+                  GoRoute(
+                    path: 'profiles/:userId',
+                    name: AppRoute.publicProfile.name,
+                    builder: (context, state) {
+                      return ProfilePage(profile: state.extra as UserProfile);
+                    },
+                  ),
+                ],
               ),
             ],
           ),

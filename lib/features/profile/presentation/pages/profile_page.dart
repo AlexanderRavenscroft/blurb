@@ -11,22 +11,35 @@ import 'package:go_router/go_router.dart';
 import 'package:remixicon/remixicon.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  final UserProfile? profile;
+
+  const ProfilePage({super.key, this.profile});
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<SessionCubit, SessionState>(
-    builder: (context, state) {
-      if (state is! SessionAuthenticated) return const SizedBox.shrink();
+  Widget build(BuildContext context) {
+    return BlocBuilder<SessionCubit, SessionState>(
+      builder: (context, state) {
+        if (state is! SessionAuthenticated) {
+          return const SizedBox.shrink();
+        }
 
-      return _ProfileView(profile: state.profile);
-    },
-  );
+        final displayedProfile = profile ?? state.profile;
+        final isOwnProfile = displayedProfile.id == state.user.id;
+
+        return _ProfileView(
+          profile: displayedProfile,
+          isOwnProfile: isOwnProfile,
+        );
+      },
+    );
+  }
 }
 
 class _ProfileView extends StatelessWidget {
   final UserProfile profile;
+  final bool isOwnProfile;
 
-  const _ProfileView({required this.profile});
+  const _ProfileView({required this.profile, required this.isOwnProfile});
 
   @override
   Widget build(BuildContext context) {
@@ -35,22 +48,35 @@ class _ProfileView extends StatelessWidget {
     return Column(
       crossAxisAlignment: .stretch,
       children: [
-        FHeader(
-          style: const .delta(padding: .value(EdgeInsets.only(bottom: 0))),
-          title: Text(
-            profile.username,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.theme.typography.display.xl,
-          ),
-          suffixes: [
-            FHeaderAction(
-              onPress: () => context.pushNamed(AppRoute.profileSettings.name),
-              semanticsLabel: 'Profile settings',
-              icon: const Icon(RemixIcons.settings_3_line),
+        if (isOwnProfile)
+          FHeader(
+            style: const .delta(padding: .value(EdgeInsets.only(bottom: 0))),
+            title: Text(
+              profile.username,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.display.xl,
             ),
-          ],
-        ),
+            suffixes: [
+              FHeaderAction(
+                onPress: () => context.pushNamed(AppRoute.profileSettings.name),
+                semanticsLabel: 'Profile settings',
+                icon: const Icon(RemixIcons.settings_3_line),
+              ),
+            ],
+          ),
+        if (!isOwnProfile)
+          FHeader.nested(
+            style: const .delta(padding: .value(EdgeInsets.only(bottom: 0))),
+            title: Text(
+              profile.username,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.display.xl,
+            ),
+            prefixes: [FHeaderAction.back(onPress: () => context.pop())],
+          ),
+
         Expanded(
           child: SingleChildScrollView(
             padding: EdgeInsets.only(top: AppSpacing.md),
@@ -68,15 +94,28 @@ class _ProfileView extends StatelessWidget {
                   ),
                 ],
                 Gap(bio.isNotEmpty ? AppSpacing.sm : AppSpacing.xl),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FButton(
-                    onPress: () => context.pushNamed(AppRoute.editProfile.name),
-                    variant: .secondary,
-                    size: .sm,
-                    mainAxisSize: MainAxisSize.min,
-                    child: const Text('Edit profile'),
-                  ),
+                Row(
+                  mainAxisAlignment: isOwnProfile
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.end,
+                  children: [
+                    if (!isOwnProfile)
+                      FButton(
+                        onPress: () {},
+                        size: .sm,
+                        mainAxisSize: MainAxisSize.min,
+                        child: const Text('Follow'),
+                      ),
+                    if (isOwnProfile)
+                      FButton(
+                        onPress: () =>
+                            context.pushNamed(AppRoute.editProfile.name),
+                        variant: .secondary,
+                        size: .sm,
+                        mainAxisSize: MainAxisSize.min,
+                        child: const Text('Edit profile'),
+                      ),
+                  ],
                 ),
               ],
             ),

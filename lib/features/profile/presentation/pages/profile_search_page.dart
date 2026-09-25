@@ -1,13 +1,16 @@
+import 'package:blurb/app/app_routing.dart';
 import 'package:blurb/app/session/session_cubit.dart';
 import 'package:blurb/features/profile/domain/profile_repository.dart';
 import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:blurb/features/profile/presentation/components/profile_avatar.dart';
 import 'package:blurb/features/profile/presentation/cubits/profile_list/profile_list_cubit.dart';
+import 'package:blurb/theme/app_radius.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileSearchPage extends StatelessWidget {
   const ProfileSearchPage({super.key});
@@ -152,40 +155,59 @@ class _ProfileListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        ProfileAvatar(
-          avatarUrl: profile.avatarUrl,
-          size: 50,
-          semanticsLabel: '${profile.fullName} profile picture',
+    return FTappable(
+      builder: (context, states, child) => Container(
+        decoration: BoxDecoration(
+          color:
+              (states.contains(FTappableVariant.hovered) ||
+                  states.contains(FTappableVariant.pressed))
+              ? context.theme.colors.secondary
+              : context.theme.colors.background,
+          borderRadius: .circular(AppRadius.md),
         ),
-        const Gap(AppSpacing.lg),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                profile.fullName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.theme.typography.body.sm.copyWith(
-                  fontWeight: FontWeight.w600,
-                  height: 1,
-                ),
-              ),
-              Text(
-                profile.username,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.theme.typography.body.sm.copyWith(
-                  color: context.theme.colors.mutedForeground,
-                ),
-              ),
-            ],
+        child: child!,
+      ),
+      style: const .delta(motion: FTappableMotion.none),
+      onPress: () => context.pushNamed(
+        AppRoute.publicProfile.name,
+        pathParameters: {'userId': profile.id},
+        extra: profile,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ProfileAvatar(
+            avatarUrl: profile.avatarUrl,
+            size: 50,
+            semanticsLabel: '${profile.fullName} profile picture',
           ),
-        ),
-      ],
+          const Gap(AppSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profile.fullName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                    height: 1,
+                  ),
+                ),
+                Text(
+                  profile.username,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.theme.typography.body.sm.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
