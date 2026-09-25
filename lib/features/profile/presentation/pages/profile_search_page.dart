@@ -28,10 +28,17 @@ class ProfileSearchPage extends StatelessWidget {
   }
 }
 
-class ProfileSearchView extends StatelessWidget {
+class ProfileSearchView extends StatefulWidget {
   final String currentUserId;
 
   const ProfileSearchView({super.key, required this.currentUserId});
+
+  @override
+  State<ProfileSearchView> createState() => _ProfileSearchViewState();
+}
+
+class _ProfileSearchViewState extends State<ProfileSearchView> {
+  String _query = '';
 
   @override
   Widget build(BuildContext context) {
@@ -46,35 +53,80 @@ class ProfileSearchView extends StatelessWidget {
           style: context.theme.typography.display.xl,
         ),
       ),
-
-      child: BlocBuilder<ProfileListCubit, ProfileListState>(
-        builder: (context, state) => switch (state) {
-          ProfileListLoading() => const Center(child: FCircularProgress()),
-          ProfileListLoaded(:final profiles) => _ProfileList(
-            profiles: profiles,
+      child: Column(
+        children: [
+          FTextField(
+            control: .managed(
+              onChange: (value) {
+                if (_query == value.text) return;
+                setState(() => _query = value.text);
+              },
+            ),
+            hint: 'Search profiles',
+            textInputAction: .search,
+            autocorrect: false,
+            prefixBuilder: (context, style, variants) =>
+                FTextField.prefixIconBuilder(
+                  context,
+                  style,
+                  variants,
+                  context.theme.icons.search(
+                    context,
+                    semanticsLabel: 'Search profiles',
+                  ),
+                ),
+            clearable: (value) => value.text.isNotEmpty,
           ),
-          ProfileListFailure() => _ProfileListFailure(
-            onRetry: () => context.read<ProfileListCubit>().loadProfiles(
-              userId: currentUserId,
+          const Gap(AppSpacing.md),
+          Expanded(
+            child: BlocBuilder<ProfileListCubit, ProfileListState>(
+              builder: (context, state) => switch (state) {
+                ProfileListLoading() => const Center(
+                  child: FCircularProgress(),
+                ),
+                ProfileListLoaded(:final profiles) => _ProfileList(
+                  profiles: _filterProfiles(profiles),
+                  isSearching: _query.trim().isNotEmpty,
+                ),
+                ProfileListFailure() => _ProfileListFailure(
+                  onRetry: () => context.read<ProfileListCubit>().loadProfiles(
+                    userId: widget.currentUserId,
+                  ),
+                ),
+              },
             ),
           ),
-        },
+        ],
       ),
     );
+  }
+
+  List<UserProfile> _filterProfiles(List<UserProfile> profiles) {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return profiles;
+
+    return profiles
+        .where(
+          (profile) =>
+              profile.fullName.toLowerCase().contains(query) ||
+              profile.username.toLowerCase().contains(query),
+        )
+        .toList(growable: false);
   }
 }
 
 class _ProfileList extends StatelessWidget {
   final List<UserProfile> profiles;
+  final bool isSearching;
 
-  const _ProfileList({required this.profiles});
+  const _ProfileList({required this.profiles, required this.isSearching});
 
   @override
   Widget build(BuildContext context) {
     if (profiles.isEmpty) {
       return Center(
         child: Text(
-          'No other profiles yet.',
+          isSearching ? 'No profiles found.' : 'No other profiles yet.',
           style: context.theme.typography.body.sm.copyWith(
             color: context.theme.colors.mutedForeground,
           ),
@@ -83,6 +135,7 @@ class _ProfileList extends StatelessWidget {
     }
 
     return ListView.separated(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       itemCount: profiles.length,
       separatorBuilder: (_, _) => const Gap(AppSpacing.lg),
@@ -104,10 +157,10 @@ class _ProfileListItem extends StatelessWidget {
       children: [
         ProfileAvatar(
           avatarUrl: profile.avatarUrl,
-          size: 48,
+          size: 50,
           semanticsLabel: '${profile.fullName} profile picture',
         ),
-        const Gap(AppSpacing.md),
+        const Gap(AppSpacing.lg),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,9 +169,9 @@ class _ProfileListItem extends StatelessWidget {
                 profile.fullName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.theme.typography.body.md.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   fontWeight: FontWeight.w600,
-                  height: 1.2,
+                  height: 1,
                 ),
               ),
               Text(
