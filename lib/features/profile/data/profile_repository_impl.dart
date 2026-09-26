@@ -19,6 +19,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Stream<UserProfile> get profileChanges => _profileChanges.stream;
 
   @override
+  Stream<UserProfile?> watchProfile(String userId) => _supabase
+      .from('profiles')
+      .stream(primaryKey: ['id'])
+      .eq('id', userId)
+      .map((rows) => rows.isEmpty ? null : _mapProfile(rows.single));
+
+  @override
   Future<UserProfile?> getProfile(String userId) async {
     final data = await _supabase
         .from('profiles')

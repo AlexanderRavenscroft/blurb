@@ -110,6 +110,7 @@ class ProfileView extends StatelessWidget {
           ),
         if (!isOwnProfile)
           FHeader.nested(
+            titleAlignment: AlignmentGeometry.centerLeft,
             style: const .delta(padding: .value(EdgeInsets.only(bottom: 0))),
             title: Text(
               profile.username,
@@ -192,21 +193,16 @@ class _ProfileSummary extends StatelessWidget {
       const Gap(AppSpacing.xl),
       Expanded(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text(
-                  profile.fullName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: context.theme.typography.body.md.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+            Text(
+              profile.fullName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.body.md.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            const Gap(AppSpacing.xs),
             Row(
               children: [
                 _ProfileStat(value: profile.postsCount, label: 'posts'),
