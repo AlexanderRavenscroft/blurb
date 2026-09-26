@@ -17,4 +17,10 @@ abstract interface class ProfileRepository {
     Uint8List? avatarBytes,
     String? avatarExtension,
   });
+
+  Future<void> follow(String profileId);
+
+  Future<void> unfollow(String profileId);
+
+  Future<bool> isFollowing(String profileId);
 }

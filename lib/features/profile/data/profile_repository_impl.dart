@@ -9,6 +9,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   static const _avatarBucket = 'avatars';
+  static const _profileColumns =
+      'id, username, full_name, avatar_url, bio, followers_count, following_count, posts_count';
   final _supabase = Supabase.instance.client;
 
   final _profileChanges = StreamController<UserProfile>.broadcast();
@@ -20,7 +22,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<UserProfile?> getProfile(String userId) async {
     final data = await _supabase
         .from('profiles')
-        .select('id, username, full_name, avatar_url, bio')
+        .select(_profileColumns)
         .eq('id', userId)
         .maybeSingle();
 
@@ -31,7 +33,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<List<UserProfile>> getProfilesExcludingUser(String userId) async {
     final data = await _supabase
         .from('profiles')
-        .select('id, username, full_name, avatar_url, bio')
+        .select(_profileColumns)
         .neq('id', userId);
 
     return data.map(_mapProfile).toList();
@@ -64,7 +66,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
             'bio': ?bio,
             'avatar_url': ?avatarUrl,
           }, onConflict: 'id')
-          .select('id, username, full_name, avatar_url, bio')
+          .select(_profileColumns)
           .single();
 
       final profile = _mapProfile(data);
@@ -113,5 +115,54 @@ class ProfileRepositoryImpl implements ProfileRepository {
     fullName: data['full_name'] as String? ?? '',
     bio: data['bio'] as String,
     avatarUrl: data['avatar_url'] as String?,
+    followersCount: (data['followers_count'] as num).toInt(),
+    followingCount: (data['following_count'] as num).toInt(),
+    postsCount: (data['posts_count'] as num).toInt(),
   );
+
+  @override
+  Future<void> follow(String profileId) async {
+    final currentUserId = _requireCurrentUserId();
+
+    await _supabase
+        .from('follows')
+        .upsert(
+          {'follower_id': currentUserId, 'followed_id': profileId},
+          onConflict: 'follower_id,followed_id',
+          ignoreDuplicates: true,
+        );
+  }
+
+  @override
+  Future<bool> isFollowing(String profileId) async {
+    final currentUserId = _requireCurrentUserId();
+    final relationship = await _supabase
+        .from('follows')
+        .select('follower_id')
+        .eq('follower_id', currentUserId)
+        .eq('followed_id', profileId)
+        .maybeSingle();
+
+    return relationship != null;
+  }
+
+  @override
+  Future<void> unfollow(String profileId) async {
+    final currentUserId = _requireCurrentUserId();
+
+    await _supabase
+        .from('follows')
+        .delete()
+        .eq('follower_id', currentUserId)
+        .eq('followed_id', profileId);
+  }
+
+  String _requireCurrentUserId() {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) {
+      throw StateError('A signed-in user is required');
+    }
+
+    return userId;
+  }
 }

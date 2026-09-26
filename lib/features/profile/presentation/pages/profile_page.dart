@@ -1,7 +1,10 @@
 import 'package:blurb/app/app_routing.dart';
 import 'package:blurb/app/session/session_cubit.dart';
+import 'package:blurb/features/profile/domain/profile_repository.dart';
 import 'package:blurb/features/profile/domain/user_profile.dart';
 import 'package:blurb/features/profile/presentation/components/profile_avatar.dart';
+import 'package:blurb/features/profile/presentation/cubits/profile_page/profile_page_cubit.dart';
+import 'package:blurb/features/profile/presentation/profile_failure_message_mapper.dart';
 import 'package:blurb/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,20 +29,60 @@ class ProfilePage extends StatelessWidget {
         final displayedProfile = profile ?? state.profile;
         final isOwnProfile = displayedProfile.id == state.user.id;
 
-        return _ProfileView(
-          profile: displayedProfile,
-          isOwnProfile: isOwnProfile,
+        return BlocProvider(
+          create: (context) => ProfilePageCubit(
+            profileRepository: context.read<ProfileRepository>(),
+          )..load(profileId: displayedProfile.id, isOwnProfile: isOwnProfile),
+          child: BlocConsumer<ProfilePageCubit, ProfilePageState>(
+            listenWhen: (previous, current) =>
+                current is ProfilePageLoaded && current.followErrorCode != null,
+            listener: (context, state) {
+              if (state is! ProfilePageLoaded) return;
+              showFToast(
+                context: context,
+                title: Text(
+                  ProfileFailureMessageMapper.forFollow(state.followErrorCode!),
+                ),
+                variant: FToastVariant.destructive,
+                duration: const Duration(seconds: 3),
+              );
+            },
+            builder: (context, state) => switch (state) {
+              ProfilePageLoading() => const Center(child: FCircularProgress()),
+              ProfilePageFailure() => _ProfileLoadFailure(
+                message: ProfileFailureMessageMapper.forLoad(state.code),
+                onRetry: () => context.read<ProfilePageCubit>().load(
+                  profileId: displayedProfile.id,
+                  isOwnProfile: isOwnProfile,
+                ),
+              ),
+              ProfilePageLoaded() => ProfileView(
+                profile: state.profile,
+                isOwnProfile: isOwnProfile,
+                isFollowing: state.isFollowing,
+                isUpdatingFollow: state.isUpdatingFollow,
+              ),
+            },
+          ),
         );
       },
     );
   }
 }
 
-class _ProfileView extends StatelessWidget {
+class ProfileView extends StatelessWidget {
   final UserProfile profile;
   final bool isOwnProfile;
+  final bool isFollowing;
+  final bool isUpdatingFollow;
 
-  const _ProfileView({required this.profile, required this.isOwnProfile});
+  const ProfileView({
+    super.key,
+    required this.profile,
+    required this.isOwnProfile,
+    required this.isFollowing,
+    required this.isUpdatingFollow,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,15 +144,26 @@ class _ProfileView extends StatelessWidget {
                   children: [
                     if (!isOwnProfile)
                       FButton(
-                        onPress: () {},
+                        onPress: isUpdatingFollow
+                            ? null
+                            : context.read<ProfilePageCubit>().toggleFollow,
+                        variant: isFollowing
+                            ? FButtonVariant.secondary
+                            : FButtonVariant.primary,
                         size: .sm,
                         mainAxisSize: MainAxisSize.min,
-                        child: const Text('Follow'),
+                        child: Text(isFollowing ? 'Following' : 'Follow'),
                       ),
                     if (isOwnProfile)
                       FButton(
-                        onPress: () =>
-                            context.pushNamed(AppRoute.editProfile.name),
+                        onPress: () async {
+                          await context.pushNamed(AppRoute.editProfile.name);
+                          if (!context.mounted) return;
+                          await context.read<ProfilePageCubit>().load(
+                            profileId: profile.id,
+                            isOwnProfile: isOwnProfile,
+                          );
+                        },
                         variant: .secondary,
                         size: .sm,
                         mainAxisSize: MainAxisSize.min,
@@ -164,6 +218,36 @@ class _ProfileSummary extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+class _ProfileLoadFailure extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ProfileLoadFailure({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          message,
+          style: context.theme.typography.body.sm.copyWith(
+            color: context.theme.colors.mutedForeground,
+          ),
+        ),
+        const Gap(AppSpacing.md),
+        FButton(
+          onPress: onRetry,
+          variant: .secondary,
+          size: .sm,
+          mainAxisSize: MainAxisSize.min,
+          child: const Text('Try again'),
+        ),
+      ],
+    ),
   );
 }
 
